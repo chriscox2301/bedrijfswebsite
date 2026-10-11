@@ -1,0 +1,152 @@
+@import "tailwindcss";
+
+/*
+ * DESIGN TOKENS
+ * Wil je later rebranden? Pas dan vooral de waarden in dit @theme-blok aan.
+ * Elke variabele wordt automatisch een Tailwind-class, bijv.:
+ *   --color-accent    -> bg-accent, text-accent, ring-accent
+ *   --font-display    -> font-display
+ *   --spacing-section -> py-section
+ *   --container-page  -> max-w-page
+ */
+@theme {
+  /* Kleuren */
+  --color-paper: #eef1f0; /* paginaachtergrond: koel, licht grijsgroen */
+  --color-surface: #ffffff; /* kaarten en panelen */
+  --color-ink: #13201b; /* hoofdtekst en donkere vlakken */
+  --color-ink-soft: #4a5852; /* secundaire tekst (AA-contrast op paper en surface) */
+  --color-accent: #2742d6; /* merkkleur: knoppen, links, focus */
+  --color-accent-hover: #1d33ad;
+  --color-accent-soft: #e2e7fc; /* lichte tint van de merkkleur */
+  --color-on-accent: #ffffff; /* tekst op de merkkleur */
+  --color-on-ink: #f3f6f5; /* tekst op donkere vlakken */
+  --color-on-ink-soft: #a9b6b0;
+  --color-error: #b42318;
+  --color-success: #127a43;
+
+  /* Lettertypes (geladen in src/app/layout.tsx) */
+  --font-display: var(--font-bricolage), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-geist), ui-sans-serif, system-ui, sans-serif;
+
+  /* Typografische schaal voor koppen */
+  --text-display: clamp(2.6rem, 1.6rem + 4vw, 4.75rem);
+  --text-display--line-height: 1;
+  --text-display--letter-spacing: -0.035em;
+  --text-heading: clamp(2rem, 1.4rem + 2.6vw, 3.6rem);
+  --text-heading--line-height: 1.05;
+  --text-heading--letter-spacing: -0.03em;
+
+  /* Ruimte en maatvoering */
+  --spacing-section: 6rem; /* verticale ruimte per sectie (mobiel) */
+  --spacing-section-lg: 10rem; /* verticale ruimte per sectie (desktop) */
+  --spacing-gutter: 1rem; /* zijmarge mobiel */
+  --spacing-gutter-lg: 2rem; /* zijmarge desktop */
+  --container-page: 76rem; /* maximale breedte van de inhoud */
+
+  /* Afronding: buitenste schil en binnenkern ("double bezel") */
+  --radius-shell: 2rem;
+  --radius-core: calc(2rem - 0.375rem);
+
+  /* Zachte, diffuse schaduwen */
+  --shadow-soft: 0 1px 1px rgb(19 32 27 / 0.03), 0 12px 32px -16px rgb(19 32 27 / 0.1),
+    0 40px 80px -48px rgb(19 32 27 / 0.16);
+  --shadow-lift: 0 2px 2px rgb(19 32 27 / 0.04), 0 24px 48px -20px rgb(19 32 27 / 0.18),
+    0 64px 120px -56px rgb(19 32 27 / 0.28);
+
+  /* Beweging: één veerachtige curve voor de hele site */
+  --ease-spring: cubic-bezier(0.32, 0.72, 0, 1);
+
+  --animate-rise: rise 1s var(--ease-spring) both;
+  @keyframes rise {
+    from {
+      opacity: 0;
+      transform: translateY(1.5rem);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+}
+
+/* Geen Tailwind-class nodig, alleen een herbruikbare waarde */
+:root {
+  --inset-highlight: inset 0 1px 1px rgb(255 255 255 / 0.7);
+}
+
+@layer base {
+  html {
+    /* Zorgt dat ankerlinks niet onder de zwevende header verdwijnen */
+    scroll-padding-top: 7rem;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
+  }
+
+  body {
+    background-color: var(--color-paper);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  :focus-visible {
+    outline: 3px solid var(--color-accent);
+    outline-offset: 3px;
+  }
+
+  ::selection {
+    background-color: var(--color-accent);
+    color: var(--color-on-accent);
+  }
+}
+
+/* Vaste zijmarges + maximale breedte voor elke sectie */
+@utility page-container {
+  margin-inline: auto;
+  width: 100%;
+  max-width: var(--container-page);
+  padding-inline: var(--spacing-gutter);
+  @media (width >= 48rem) {
+    padding-inline: var(--spacing-gutter-lg);
+  }
+}
+
+/*
+ * Scroll-animatie: <Reveal> zet data-visible="true" zodra het element in beeld komt.
+ * Alleen transform en opacity, dus soepel op mobiel.
+ */
+@utility reveal {
+  opacity: 0;
+  transform: translateY(2rem);
+  transition:
+    opacity 0.9s var(--ease-spring),
+    transform 0.9s var(--ease-spring);
+  transition-delay: var(--reveal-delay, 0ms);
+
+  &[data-visible="true"] {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Wie minder beweging wil, krijgt alles direct en zonder animatie te zien. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    transition-delay: 0ms !important;
+  }
+
+  .reveal {
+    opacity: 1;
+    transform: none;
+  }
+}
